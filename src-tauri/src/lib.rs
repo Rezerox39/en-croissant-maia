@@ -98,11 +98,18 @@ pub struct AppState {
 #[tauri::command]
 #[specta::specta]
 async fn close_splashscreen(window: Window) -> Result<(), String> {
-    window
-        .get_webview_window("main")
-        .expect("no window labeled 'main' found")
-        .show()
-        .unwrap();
+    #[cfg(desktop)]
+    {
+        window
+            .get_webview_window("main")
+            .expect("no window labeled 'main' found")
+            .show()
+            .map_err(|error| error.to_string())?;
+    }
+    #[cfg(not(desktop))]
+    {
+        let _ = window;
+    }
     Ok(())
 }
 
