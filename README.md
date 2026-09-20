@@ -25,7 +25,7 @@ The APK is built automatically on every push to `main` and attached to the workf
    in the engine list.
 4. Start a new game, pick an engine opponent and choose **Maia 1700**.
 
-Maia plays the *average* move of a 1700-rated Lichess player: the GUI configures it with `go nodes 1`
+Maia plays the _average_ move of a 1700-rated Lichess player: the GUI configures it with `go nodes 1`
 (search is disabled, a single neural network evaluation per move), matching how the Maia models are meant
 to be used.
 
@@ -65,6 +65,7 @@ pnpm tauri android build --apk --debug --target aarch64
 - [lc0](https://github.com/LeelaChessZero/lc0) - GPL-3.0, by the Leela Chess Zero team.
 
 ---
+
 <br />
 <div align="center">
   <a href="https://github.com/franciscoBSalgueiro/en-croissant">
