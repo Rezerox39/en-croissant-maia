@@ -33,15 +33,10 @@ fi
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 
-echo "Downloading lc0 $LC0_VERSION..."
-curl -sSL -o "$WORK/lc0.tar.gz" \
-  "https://github.com/LeelaChessZero/lc0/archive/refs/tags/$LC0_VERSION.tar.gz"
-tar -xzf "$WORK/lc0.tar.gz" -C "$WORK"
-SRC="$(find "$WORK" -maxdepth 1 -type d -name 'lc0-*' | head -1)"
-if [[ -z "$SRC" ]]; then
-  echo "Failed to locate the extracted lc0 source directory" >&2
-  exit 1
-fi
+echo "Cloning lc0 $LC0_VERSION (with submodules)..."
+git clone --quiet --depth 1 --branch "$LC0_VERSION" --recursive --shallow-submodules \
+  https://github.com/LeelaChessZero/lc0.git "$WORK/lc0-src"
+SRC="$WORK/lc0-src"
 echo "lc0 source: $SRC"
 
 cat > "$WORK/cross-android.ini" <<INI
