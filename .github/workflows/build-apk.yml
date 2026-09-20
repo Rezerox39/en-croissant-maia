@@ -70,7 +70,23 @@ jobs:
           CXX_aarch64_linux_android: ${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-clang++
           AR_aarch64_linux_android: ${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar
           RANLIB_aarch64_linux_android: ${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ranlib
-        run: pnpm tauri android build --apk --debug --target aarch64
+        run: pnpm tauri android build --apk --target aarch64
+
+      - name: Sign APK
+        env:
+          ANDROID_KEYSTORE_PASS: ${{ secrets.ANDROID_KEYSTORE_PASS }}
+        run: |
+          set -euo pipefail
+          if [ -z "$ANDROID_KEYSTORE_PASS" ]; then
+            echo "ANDROID_KEYSTORE_PASS secret not set; generating a throwaway keystore" >&2
+            ANDROID_KEYSTORE_PASS="maia-1700-demo"
+          fi
+          KEYSTORE="$RUNNER_TEMP/release.keystore"
+          keytool -genkeypair -v -keystore "$KEYSTORE" -alias en-croissant-maia             -keyalg RSA -keysize 2048 -validity 10000             -storepass "$ANDROID_KEYSTORE_PASS" -keypass "$ANDROID_KEYSTORE_PASS"             -dname "CN=En Croissant Maia, O=Rezerox39, C=US" > /dev/null 2>&1
+          UNSIGNED="$(find src-tauri/gen/android/app/build/outputs/apk -name '*release-unsigned.apk' | head -1)"
+          SIGNED="${UNSIGNED%-unsigned.apk}.apk"
+          "$ANDROID_HOME"/build-tools/36.0.0/apksigner sign             --ks "$KEYSTORE"             --ks-pass "pass:$ANDROID_KEYSTORE_PASS"             --key-pass "pass:$ANDROID_KEYSTORE_PASS"             --out "$SIGNED" "$UNSIGNED"
+          echo "Signed APK: $SIGNED ($(du -h "$SIGNED" | cut -f1))"
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
