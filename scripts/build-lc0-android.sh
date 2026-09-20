@@ -55,7 +55,8 @@ ld = '${TOOLCHAIN}/bin/ld.lld'
 INI
 
 echo "Configuring lc0 with meson..."
-meson setup "$SRC/build" "$SRC" \
+cd "$SRC"
+meson setup build \
   --cross-file "$WORK/cross-android.ini" \
   --buildtype release \
   -Db_lto=false \
